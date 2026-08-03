@@ -1,0 +1,62 @@
+{
+  "zone": "Befallen",
+  "packVersion": "1.0.0",
+  "provider": "elevenlabs",
+  "voiceId": "REPLACE_WITH_CHOSEN_VOICE_ID",
+  "enemies": [
+    {
+      "name": "Skeleton L`rodd",
+      "statements": [
+        {
+          "text": "Run! Leave this place at once!",
+          "file": "audio/skeleton-lrodd/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Priest Amiaz",
+      "statements": [
+        {
+          "text": "HAH!  Someone as weak as yourself wouldn't even make a decent slave!  You're better off dead, I say!",
+          "file": "audio/priest-amiaz/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Priest Amiaz's corpse",
+      "statements": [
+        {
+          "text": "You may have won this battle, my friend, but I shall rise again...  and one day, all shall know the true power of the Burning Dead!",
+          "file": "audio/priest-amiazs-corpse/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Gynok Moltor",
+      "statements": [
+        {
+          "text": "Oooohhh...  Arghhh...  Yooouuu ssssshhhalll neeeveer ffffiiinnnd the paaawwww...",
+          "file": "audio/gynok-moltor/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Ice boned skeleton",
+      "statements": [
+        {
+          "text": "Areeeeewwwww",
+          "file": "audio/ice-boned-skeleton/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "An elf skeleton",
+      "statements": [
+        {
+          "text": "Death to all!  None shall get the mallet!  All shall die!",
+          "file": "audio/an-elf-skeleton/01.mp3"
+        }
+      ]
+    }
+  ]
+}
