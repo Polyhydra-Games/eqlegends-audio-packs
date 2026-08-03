@@ -1,0 +1,45 @@
+name: Release Pack
+
+# Triggers on pushing a tag named "<zone-slug>-v*", e.g.:
+#   git tag crushbone-v1.0.0 && git push origin crushbone-v1.0.0
+# Zips packs/<zone-slug>/ and attaches it to a GitHub Release named after the tag.
+on:
+  push:
+    tags:
+      - "*-v*.*.*"
+
+permissions:
+  contents: write # required to create a GitHub Release and upload assets
+
+jobs:
+  release:
+    name: Zip and release pack
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Determine pack slug from tag
+        id: pack
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          SLUG="${TAG%-v*}"
+          echo "slug=${SLUG}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify pack directory exists
+        run: |
+          if [ ! -d "packs/${{ steps.pack.outputs.slug }}" ]; then
+            echo "::error::No packs/${{ steps.pack.outputs.slug }} directory for tag ${GITHUB_REF_NAME}"
+            exit 1
+          fi
+
+      - name: Zip pack
+        run: |
+          cd "packs/${{ steps.pack.outputs.slug }}"
+          zip -r "../../${{ steps.pack.outputs.slug }}.zip" .
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.pack.outputs.slug }}.zip
+          name: "${{ steps.pack.outputs.slug }} pack ${{ github.ref_name }}"
