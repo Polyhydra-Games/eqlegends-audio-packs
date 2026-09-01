@@ -46,4 +46,5 @@ Each pack is published as a GitHub Release with the pack's zip attached (e.g. `c
 
 | Zone | Status |
 |---|---|
-| Crushbone | manifest scaffolded, clips not yet generated |
+| Crushbone | manifest scaffolded (39 enemy entries), clips not yet generated |
+| Befallen | manifest scaffolded (6 enemy entries — thinner dataset, less time spent there), clips not yet generated |
