@@ -1,0 +1,28 @@
+name: Validate Packs
+
+on:
+  pull_request:
+    paths:
+      - "packs/**"
+  push:
+    branches:
+      - main
+    paths:
+      - "packs/**"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate manifests and clips
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run validator tests
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Validate all packs
+        run: python3 scripts/validate_pack.py --all
