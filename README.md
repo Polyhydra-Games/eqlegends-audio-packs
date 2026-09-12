@@ -48,3 +48,16 @@ Each pack is published as a GitHub Release with the pack's zip attached (e.g. `c
 |---|---|
 | Crushbone | manifest scaffolded (39 enemy entries), clips not yet generated |
 | Befallen | manifest scaffolded (6 enemy entries — thinner dataset, less time spent there), clips not yet generated |
+
+## Validation
+
+Pack manifests and their referenced clips are checked by the credential-free
+validator before a tagged release is zipped. To validate one pack locally:
+
+```bash
+python3 scripts/validate_pack.py --pack-dir packs/<zone-slug>
+```
+
+The pull request workflow also runs the validator tests and checks every pack
+when pack content changes. The current scaffold entries intentionally fail
+until their referenced audio clips have been added.
