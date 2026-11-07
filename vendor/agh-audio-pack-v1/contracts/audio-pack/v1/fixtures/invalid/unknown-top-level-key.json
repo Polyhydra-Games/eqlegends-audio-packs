@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "game_id": "wow",
+  "zone_key": "thunder-bluff",
+  "zone_name": "Thunder Bluff",
+  "packVersion": "1.0.0",
+  "provider": "fixture",
+  "voiceId": "fixture-voice-moolisa",
+  "enemies": [
+    {
+      "name": "Moolisa",
+      "statements": [
+        {
+          "id": "moolisa-01",
+          "text": "Welcome to Thunder Bluff, traveler. The wind on the high mesa is kind to those who come in peace.",
+          "file": "audio/moolisa/01.mp3"
+        },
+        {
+          "id": "moolisa-02",
+          "text": "Our elders say the spirits of the plains have been restless. Walk gently and listen to the drums.",
+          "file": "audio/moolisa/02.mp3"
+        },
+        {
+          "id": "moolisa-03",
+          "text": "Every hunter who leaves this hold should return with a story worth telling around the fire.",
+          "file": "audio/moolisa/03.mp3"
+        }
+      ]
+    }
+  ],
+  "zone": "Thunder Bluff"
+}

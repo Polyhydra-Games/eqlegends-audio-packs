@@ -1,21 +1,46 @@
 #!/usr/bin/env python3
-"""Validate an EQ Legends audio pack without contacting external services."""
+"""Validate an EQ Legends audio pack without contacting external services.
+
+Manifests are checked against the vendored AGH audio-pack manifest v1 contract
+(vendor/agh-audio-pack-v1, read-only). A manifest with a schema_version key is
+validated as v1 directly. A legacy EQ manifest (no schema_version) is migrated
+in memory with migrate_eq_manifest, using the pack directory name as zone_key,
+and the migrated copy is validated as v1. The manifest file on disk is never
+rewritten.
+"""
 
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
-import re
 import sys
 from pathlib import Path
+from types import ModuleType
 from typing import Any
 
 
-SEMVER = re.compile(
-    r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
-    r"(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?"
-    r"(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$"
+VENDOR_MODULE = (
+    Path(__file__).resolve().parents[1]
+    / "vendor"
+    / "agh-audio-pack-v1"
+    / "python"
+    / "agentic_game_harness"
+    / "audio_pack.py"
 )
+LEGACY_MISSING_FILE_NOTE = " (does not reference a file)"
+
+
+def _load_audio_pack(path: Path) -> ModuleType:
+    spec = importlib.util.spec_from_file_location("agh_audio_pack_v1", path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"cannot load vendored audio pack contract: {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+_audio_pack = _load_audio_pack(VENDOR_MODULE)
 
 
 class PackValidationError(ValueError):
@@ -27,32 +52,90 @@ def _require(condition: bool, message: str) -> None:
         raise PackValidationError(message)
 
 
-def _nonempty_string(value: Any, field: str) -> str:
-    _require(isinstance(value, str) and bool(value.strip()), f"{field} must be a non-empty string")
-    return value
+def _legacy_precheck_errors(document: dict) -> list[str]:
+    """Report v1 shape and duplicate errors before migration.
+
+    migrate_eq_manifest derives line ids from file paths and raises on paths it
+    cannot map (for example "../x.mp3"), and two lines that share a file collide
+    there. Either would hide the v1 error text, so check those rules first.
+    """
+    enemies = document.get("enemies")
+    if not isinstance(enemies, list):
+        return []
+
+    shape_errors: list[str] = []
+    duplicate_errors: list[str] = []
+    seen_triples: set[tuple[Any, Any, Any]] = set()
+    file_owner: dict[Any, tuple[Any, Any]] = {}
+    for enemy_index, enemy in enumerate(enemies):
+        if not isinstance(enemy, dict) or not isinstance(enemy.get("statements"), list):
+            continue
+        for line_index, statement in enumerate(enemy["statements"]):
+            if not isinstance(statement, dict) or not isinstance(statement.get("file"), str):
+                continue
+            location = f"enemies[{enemy_index}].statements[{line_index}]"
+            file = statement["file"]
+            _audio_pack._check_file(file, location, shape_errors)
+            key = (enemy.get("name"), statement.get("text"))
+            triple = (*key, file)
+            if triple in seen_triples:
+                duplicate_errors.append(f"duplicate statement-to-file entry: {triple!r}")
+            seen_triples.add(triple)
+            owner = file_owner.get(file)
+            if owner is not None and owner != key:
+                duplicate_errors.append(f"file is assigned to conflicting statements: {file!r}")
+            file_owner[file] = key
+    return shape_errors or duplicate_errors
 
 
-def _safe_reference(pack_root: Path, value: Any, location: str) -> Path:
-    reference = _nonempty_string(value, f"{location}.file")
-    candidate = Path(reference)
-    _require(not candidate.is_absolute(), f"{location}.file must be relative: {reference!r}")
-    _require("\\" not in reference, f"{location}.file must use / separators: {reference!r}")
-    _require(".." not in candidate.parts, f"{location}.file contains traversal: {reference!r}")
+def validate_document(document: Any, pack_dir: Path | str | None = None) -> list[str]:
+    """Return every v1 error for a manifest document. An empty list means valid."""
+    if isinstance(document, dict) and "schema_version" in document:
+        return _audio_pack.validate_manifest(document, pack_dir=pack_dir)
 
-    root = pack_root.resolve()
-    resolved = (pack_root / candidate).resolve()
+    if not isinstance(document, dict):
+        return ["manifest root must be an object"]
+    if pack_dir is None:
+        return ["legacy manifest needs a pack directory to derive zone_key"]
+
+    pack_root = Path(pack_dir).resolve()
+    precheck = _legacy_precheck_errors(document)
+    if precheck:
+        return precheck
     try:
-        resolved.relative_to(root)
+        migrated = _audio_pack.migrate_eq_manifest(document, zone_key=pack_root.name)
     except ValueError as exc:
-        raise PackValidationError(
-            f"{location}.file escapes pack root: {reference!r}"
-        ) from exc
-    _require(resolved.is_file(), f"{location}.file does not reference a file: {reference!r}")
-    return resolved
+        return [f"legacy manifest cannot be migrated to v1: {exc}"]
+
+    errors = _audio_pack.validate_manifest(migrated, pack_dir=pack_root)
+    return [
+        error + LEGACY_MISSING_FILE_NOTE if "file does not exist" in error else error
+        for error in errors
+    ]
 
 
-def validate_pack(pack_dir: Path) -> None:
-    """Validate one pack directory, raising PackValidationError on failure."""
+MISSING_FILE_MARKER = "file does not exist"
+
+
+def _is_scaffold(pack_dir: Path) -> bool:
+    """A scaffold has an audio/ directory whose only file is a .gitkeep placeholder.
+
+    The .gitkeep marker is required so that a pack whose clips were deleted is
+    not mistaken for an intentionally empty scaffold.
+    """
+    audio = pack_dir / "audio"
+    if not (audio / ".gitkeep").is_file():
+        return False
+    return not any(path.is_file() and path.name != ".gitkeep" for path in audio.rglob("*"))
+
+
+def validate_pack(pack_dir: Path) -> list[str]:
+    """Validate one pack directory, raising PackValidationError on failure.
+
+    Returns warnings. A scaffold pack (no clips yet) turns missing-file errors
+    into warnings; every other error still fails, as does any missing file in a
+    pack that has at least one clip.
+    """
 
     pack_dir = pack_dir.resolve()
     _require(pack_dir.is_dir(), f"pack directory does not exist: {pack_dir}")
@@ -65,58 +148,17 @@ def validate_pack(pack_dir: Path) -> None:
     except OSError as exc:
         raise PackValidationError(f"could not read manifest: {exc}") from exc
 
-    _require(isinstance(document, dict), "manifest root must be an object")
-    _nonempty_string(document.get("zone"), "zone")
-    version = _nonempty_string(document.get("packVersion"), "packVersion")
-    _require(bool(SEMVER.fullmatch(version)), f"packVersion is not supported semver: {version!r}")
-    _nonempty_string(document.get("provider"), "provider")
-    _nonempty_string(document.get("voiceId"), "voiceId")
-
-    enemies = document.get("enemies")
-    _require(isinstance(enemies, list) and enemies, "enemies must be a non-empty array")
-
-    seen_pairs: set[tuple[str, str, str]] = set()
-    statement_files: dict[tuple[str, str], str] = {}
-    file_statements: dict[str, tuple[str, str]] = {}
-    total_statements = 0
-
-    for enemy_index, enemy in enumerate(enemies):
-        location = f"enemies[{enemy_index}]"
-        _require(isinstance(enemy, dict), f"{location} must be an object")
-        name = _nonempty_string(enemy.get("name"), f"{location}.name")
-        statements = enemy.get("statements")
-        _require(
-            isinstance(statements, list) and statements,
-            f"{location}.statements must be a non-empty array",
-        )
-        for statement_index, statement in enumerate(statements):
-            statement_location = f"{location}.statements[{statement_index}]"
-            _require(isinstance(statement, dict), f"{statement_location} must be an object")
-            text = _nonempty_string(statement.get("text"), f"{statement_location}.text")
-            resolved = _safe_reference(pack_dir, statement.get("file"), statement_location)
-            reference = resolved.relative_to(pack_dir).as_posix()
-            pair = (name, text, reference)
-            _require(pair not in seen_pairs, f"duplicate statement-to-file entry: {pair!r}")
-            seen_pairs.add(pair)
-
-            statement_key = (name, text)
-            previous_file = statement_files.get(statement_key)
-            _require(
-                previous_file is None or previous_file == reference,
-                f"conflicting files for statement {name!r}/{text!r}: "
-                f"{previous_file!r} and {reference!r}",
-            )
-            statement_files[statement_key] = reference
-
-            previous_statement = file_statements.get(reference)
-            _require(
-                previous_statement is None or previous_statement == (name, text),
-                f"file is assigned to conflicting statements: {reference!r}",
-            )
-            file_statements[reference] = (name, text)
-            total_statements += 1
-
-    _require(total_statements > 0, "manifest contains no statements")
+    errors = validate_document(document, pack_dir=pack_dir)
+    if not errors:
+        return []
+    missing = [error for error in errors if MISSING_FILE_MARKER in error]
+    others = [error for error in errors if MISSING_FILE_MARKER not in error]
+    if others or not _is_scaffold(pack_dir):
+        raise PackValidationError("; ".join(errors))
+    return [
+        f"{error} [{pack_dir.name} is a scaffold pack with no clips yet]"
+        for error in missing
+    ]
 
 
 def _pack_dirs(root: Path) -> list[Path]:
@@ -137,7 +179,8 @@ def main(argv: list[str] | None = None) -> int:
         targets = [args.pack_dir] if args.pack_dir else _pack_dirs(args.repo_root)
         _require(bool(targets), "no pack directories found")
         for target in targets:
-            validate_pack(target)
+            for warning in validate_pack(target):
+                print(f"warning: {warning}", file=sys.stderr)
             print(f"valid: {target}")
     except PackValidationError as exc:
         print(f"invalid: {exc}", file=sys.stderr)
