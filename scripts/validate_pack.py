@@ -114,8 +114,28 @@ def validate_document(document: Any, pack_dir: Path | str | None = None) -> list
     ]
 
 
-def validate_pack(pack_dir: Path) -> None:
-    """Validate one pack directory, raising PackValidationError on failure."""
+MISSING_FILE_MARKER = "file does not exist"
+
+
+def _is_scaffold(pack_dir: Path) -> bool:
+    """A scaffold has an audio/ directory whose only file is a .gitkeep placeholder.
+
+    The .gitkeep marker is required so that a pack whose clips were deleted is
+    not mistaken for an intentionally empty scaffold.
+    """
+    audio = pack_dir / "audio"
+    if not (audio / ".gitkeep").is_file():
+        return False
+    return not any(path.is_file() and path.name != ".gitkeep" for path in audio.rglob("*"))
+
+
+def validate_pack(pack_dir: Path) -> list[str]:
+    """Validate one pack directory, raising PackValidationError on failure.
+
+    Returns warnings. A scaffold pack (no clips yet) turns missing-file errors
+    into warnings; every other error still fails, as does any missing file in a
+    pack that has at least one clip.
+    """
 
     pack_dir = pack_dir.resolve()
     _require(pack_dir.is_dir(), f"pack directory does not exist: {pack_dir}")
@@ -129,8 +149,16 @@ def validate_pack(pack_dir: Path) -> None:
         raise PackValidationError(f"could not read manifest: {exc}") from exc
 
     errors = validate_document(document, pack_dir=pack_dir)
-    if errors:
+    if not errors:
+        return []
+    missing = [error for error in errors if MISSING_FILE_MARKER in error]
+    others = [error for error in errors if MISSING_FILE_MARKER not in error]
+    if others or not _is_scaffold(pack_dir):
         raise PackValidationError("; ".join(errors))
+    return [
+        f"{error} [{pack_dir.name} is a scaffold pack with no clips yet]"
+        for error in missing
+    ]
 
 
 def _pack_dirs(root: Path) -> list[Path]:
@@ -151,7 +179,8 @@ def main(argv: list[str] | None = None) -> int:
         targets = [args.pack_dir] if args.pack_dir else _pack_dirs(args.repo_root)
         _require(bool(targets), "no pack directories found")
         for target in targets:
-            validate_pack(target)
+            for warning in validate_pack(target):
+                print(f"warning: {warning}", file=sys.stderr)
             print(f"valid: {target}")
     except PackValidationError as exc:
         print(f"invalid: {exc}", file=sys.stderr)

@@ -1,6 +1,7 @@
 import copy
 import json
-import shutil
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -42,13 +43,89 @@ class ExistingPackTests(unittest.TestCase):
                 validate_document(json.loads(before), pack_dir=PACKS / zone)
                 self.assertEqual(before, path.read_bytes())
 
-    def test_validate_pack_reports_only_missing_clips_for_existing_packs(self):
+    def test_validate_pack_passes_existing_scaffolds_with_missing_clip_warnings(self):
         for zone in ("crushbone", "befallen"):
             with self.subTest(zone=zone):
-                with self.assertRaises(PackValidationError) as ctx:
-                    validate_pack(PACKS / zone)
-                for part in str(ctx.exception).split("; "):
-                    self.assertIn("does not exist", part)
+                warnings = validate_pack(PACKS / zone)
+                self.assertTrue(warnings)
+                for warning in warnings:
+                    self.assertIn("does not exist", warning)
+                    self.assertIn("scaffold", warning)
+
+    def test_cli_all_exits_zero_with_scaffold_warnings(self):
+        result = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "scripts" / "validate_pack.py"), "--all"],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("warning: ", result.stderr)
+        self.assertIn("scaffold", result.stderr)
+        self.assertNotIn("invalid:", result.stderr)
+
+
+class ScaffoldRuleTests(unittest.TestCase):
+    def setUp(self):
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp_dir.name)
+
+    def tearDown(self):
+        self.temp_dir.cleanup()
+
+    def _scaffold(self, name: str = "scaffold-zone") -> Path:
+        pack = self.root / name
+        (pack / "audio").mkdir(parents=True)
+        (pack / "audio" / ".gitkeep").write_text("", encoding="utf-8")
+        return pack
+
+    def test_scaffold_with_only_missing_clips_passes_with_warnings(self):
+        pack = self._scaffold()
+        (pack / "manifest.json").write_text(json.dumps({
+            "zone": "Scaffold",
+            "packVersion": "1.0.0",
+            "provider": "fixture",
+            "voiceId": "fixture-voice",
+            "enemies": [{"name": "Orc", "statements": [{"text": "Hi", "file": "audio/orc.mp3"}]}],
+        }), encoding="utf-8")
+        warnings = validate_pack(pack)
+        self.assertEqual(len(warnings), 1)
+        self.assertIn("does not exist", warnings[0])
+
+    def test_pack_with_one_clip_present_and_one_missing_still_fails(self):
+        pack = self._scaffold()
+        (pack / "audio" / "orc.mp3").write_bytes(b"fixture")
+        (pack / "manifest.json").write_text(json.dumps({
+            "zone": "Partial",
+            "packVersion": "1.0.0",
+            "provider": "fixture",
+            "voiceId": "fixture-voice",
+            "enemies": [{"name": "Orc", "statements": [
+                {"text": "Hi", "file": "audio/orc.mp3"},
+                {"text": "Bye", "file": "audio/gone.mp3"},
+            ]}],
+        }), encoding="utf-8")
+        with self.assertRaisesRegex(PackValidationError, "does not exist"):
+            validate_pack(pack)
+
+    def test_scaffold_with_duplicate_line_id_still_fails(self):
+        pack = self._scaffold()
+        manifest = json.loads((FIXTURES / "valid" / "wow-thunder-bluff.json").read_text(encoding="utf-8"))
+        lines = [line for speaker in manifest["enemies"] for line in speaker["statements"]]
+        self.assertGreater(len(lines), 1)
+        lines[1]["id"] = lines[0]["id"]
+        (pack / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+        with self.assertRaisesRegex(PackValidationError, "duplicate line id"):
+            validate_pack(pack)
+
+    def test_scaffold_with_dotdot_path_still_fails(self):
+        pack = self._scaffold()
+        (pack / "manifest.json").write_text(
+            (FIXTURES / "invalid" / "dotdot-path.json").read_text(encoding="utf-8"), encoding="utf-8"
+        )
+        with self.assertRaisesRegex(PackValidationError, "traversal"):
+            validate_pack(pack)
 
 
 class NativeV1Tests(unittest.TestCase):

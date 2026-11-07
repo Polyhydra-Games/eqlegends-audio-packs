@@ -58,6 +58,8 @@ directly. The legacy EQ manifests in `packs/` have no `schema_version`; the vali
 migrates each one in memory with the vendored `migrate_eq_manifest`, using the pack
 directory name as `zone_key`, then validates the result as v1. The manifest file on
 disk is never rewritten, so the release pipeline reads the manifests unchanged.
+A scaffold pack (an `audio/` directory whose only file is `.gitkeep`) reports its missing clips as
+`warning:` lines and still passes; a pack with at least one clip must have every referenced file.
 
 Pack manifests and their referenced clips are checked by the credential-free
 validator before a tagged release is zipped. To validate one pack locally:
