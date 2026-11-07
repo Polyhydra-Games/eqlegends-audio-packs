@@ -1,0 +1,441 @@
+{
+  "schema_version": 1,
+  "game_id": "eqlegends",
+  "zone_key": "crushbone",
+  "zone_name": "Crushbone",
+  "packVersion": "1.0.0",
+  "provider": "elevenlabs",
+  "voiceId": "2gPFXx8pN3Avh27Dw5Ma",
+  "enemies": [
+    {
+      "name": "Orc legionnaire",
+      "statements": [
+        {
+          "id": "orc-legionnaire-01",
+          "text": "You are no match for a legionnaire!",
+          "file": "audio/orc-legionnaire/01.mp3"
+        },
+        {
+          "id": "orc-legionnaire-02",
+          "text": "Centurions!  Legionnaires!  Come join the fight!",
+          "file": "audio/orc-legionnaire/02.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Orc legionnaire's corpse",
+      "statements": [
+        {
+          "id": "orc-legionnaires-corpse-01",
+          "text": "You shall have all the Crushbone orc legions on your tail for my death!",
+          "file": "audio/orc-legionnaires-corpse/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Orc centurion",
+      "statements": [
+        {
+          "id": "orc-centurion-01",
+          "text": "Centurions!  Legionnaires!  Come join the fight!",
+          "file": "audio/orc-centurion/01.mp3"
+        },
+        {
+          "id": "orc-centurion-02",
+          "text": "Hail, Emperor Crush!",
+          "file": "audio/orc-centurion/02.mp3"
+        },
+        {
+          "id": "orc-centurion-03",
+          "text": "Death!  Death to all who oppose the Crushbone orcs!",
+          "file": "audio/orc-centurion/03.mp3"
+        },
+        {
+          "id": "orc-centurion-04",
+          "text": "Fall before the might of Clan Crushbone!",
+          "file": "audio/orc-centurion/04.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Orc centurion's corpse",
+      "statements": [
+        {
+          "id": "orc-centurions-corpse-01",
+          "text": "You shall have all the Crushbone orc legions on your tail for my death!",
+          "file": "audio/orc-centurions-corpse/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "An orc centurion",
+      "statements": [
+        {
+          "id": "an-orc-centurion-01",
+          "text": "Aaarrghh! The Deathfist shall hunt you down. My death will not go unnoticed.",
+          "file": "audio/an-orc-centurion/01.mp3"
+        },
+        {
+          "id": "an-orc-centurion-02",
+          "text": "For the glory of the Deathfist Magistrate, your blood shall run!",
+          "file": "audio/an-orc-centurion/02.mp3"
+        },
+        {
+          "id": "an-orc-centurion-03",
+          "text": "You shall bleed! All hail the Deathfist!",
+          "file": "audio/an-orc-centurion/03.mp3"
+        },
+        {
+          "id": "an-orc-centurion-04",
+          "text": "Death!  Death to all who oppose the Crushbone orcs!",
+          "file": "audio/an-orc-centurion/04.mp3"
+        }
+      ]
+    },
+    {
+      "name": "An orc centurion's corpse",
+      "statements": [
+        {
+          "id": "an-orc-centurions-corpse-01",
+          "text": "You shall have all the Crushbone orc legions on your tail for my death!",
+          "file": "audio/an-orc-centurions-corpse/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "An orc thaumaturgist",
+      "statements": [
+        {
+          "id": "an-orc-thaumaturgist-01",
+          "text": "Centurions!  Legionnaires!  Come join the fight!",
+          "file": "audio/an-orc-thaumaturgist/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "An orc thaumaturgist's corpse",
+      "statements": [
+        {
+          "id": "an-orc-thaumaturgists-corpse-01",
+          "text": "You shall have all the Crushbone orc legions on your tail for my death!",
+          "file": "audio/an-orc-thaumaturgists-corpse/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Orc taskmaster",
+      "statements": [
+        {
+          "id": "orc-taskmaster-01",
+          "text": "Centurions!  Legionnaires!  Come join the fight!",
+          "file": "audio/orc-taskmaster/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Orc taskmaster's corpse",
+      "statements": [
+        {
+          "id": "orc-taskmasters-corpse-01",
+          "text": "You shall have all the Crushbone orc legions on your tail for my death!",
+          "file": "audio/orc-taskmasters-corpse/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Orc trainee",
+      "statements": [
+        {
+          "id": "orc-trainee-01",
+          "text": "Death!  Death to all who oppose the Crushbone orcs!",
+          "file": "audio/orc-trainee/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Orc trainee's corpse",
+      "statements": [
+        {
+          "id": "orc-trainees-corpse-01",
+          "text": "You shall have all the Crushbone orc legions on your tail for my death!",
+          "file": "audio/orc-trainees-corpse/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Orc trainer",
+      "statements": [
+        {
+          "id": "orc-trainer-01",
+          "text": "Death!  Death to all who oppose the Crushbone orcs!",
+          "file": "audio/orc-trainer/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Orc trainer's corpse",
+      "statements": [
+        {
+          "id": "orc-trainers-corpse-01",
+          "text": "You shall have all the Crushbone orc legions on your tail for my death!",
+          "file": "audio/orc-trainers-corpse/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Orc slaver",
+      "statements": [
+        {
+          "id": "orc-slaver-01",
+          "text": "Death!  Death to all who oppose the Crushbone orcs!",
+          "file": "audio/orc-slaver/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Orc slaver's corpse",
+      "statements": [
+        {
+          "id": "orc-slavers-corpse-01",
+          "text": "You shall have all the Crushbone orc legions on your tail for my death!",
+          "file": "audio/orc-slavers-corpse/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Orc pawn",
+      "statements": [
+        {
+          "id": "orc-pawn-01",
+          "text": "Centurions!  Legionnaires!  Come join the fight!",
+          "file": "audio/orc-pawn/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Orc pawn's corpse",
+      "statements": [
+        {
+          "id": "orc-pawns-corpse-01",
+          "text": "You shall have all the Crushbone orc legions on your tail for my death!",
+          "file": "audio/orc-pawns-corpse/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Orc emissary",
+      "statements": [
+        {
+          "id": "orc-emissary-01",
+          "text": "Death!  Death to all who oppose the Crushbone orcs!",
+          "file": "audio/orc-emissary/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Orc emissary's corpse",
+      "statements": [
+        {
+          "id": "orc-emissarys-corpse-01",
+          "text": "You shall have all the Crushbone orc legions on your tail for my death!",
+          "file": "audio/orc-emissarys-corpse/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Orc oracle",
+      "statements": [
+        {
+          "id": "orc-oracle-01",
+          "text": "Let me show you the high power of the Crushbone oracles!",
+          "file": "audio/orc-oracle/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Orc oracle's corpse",
+      "statements": [
+        {
+          "id": "orc-oracles-corpse-01",
+          "text": "You shall have all the Crushbone orc legions on your tail for my death!",
+          "file": "audio/orc-oracles-corpse/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "The Prophet",
+      "statements": [
+        {
+          "id": "the-prophet-01",
+          "text": "Let me show you the high power of the Crushbone oracles!",
+          "file": "audio/the-prophet/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "The Prophet's corpse",
+      "statements": [
+        {
+          "id": "the-prophets-corpse-01",
+          "text": "You shall have all the Crushbone orc legions on your tail for my death!",
+          "file": "audio/the-prophets-corpse/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Orc warlord",
+      "statements": [
+        {
+          "id": "orc-warlord-01",
+          "text": "You are foolish to approach a warrior of Crushbone!",
+          "file": "audio/orc-warlord/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Orc warlord's corpse",
+      "statements": [
+        {
+          "id": "orc-warlords-corpse-01",
+          "text": "You shall have all the Crushbone orc legions on your tail for my death!",
+          "file": "audio/orc-warlords-corpse/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Orc scoutsman",
+      "statements": [
+        {
+          "id": "orc-scoutsman-01",
+          "text": "Death!  Death to all who oppose the Crushbone orcs!",
+          "file": "audio/orc-scoutsman/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Orc scoutsman's corpse",
+      "statements": [
+        {
+          "id": "orc-scoutsmans-corpse-01",
+          "text": "You shall have all the Crushbone orc legions on your tail for my death!",
+          "file": "audio/orc-scoutsmans-corpse/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Royal guard",
+      "statements": [
+        {
+          "id": "royal-guard-01",
+          "text": "Centurions!  Legionnaires!  Come join the fight!",
+          "file": "audio/royal-guard/01.mp3"
+        },
+        {
+          "id": "royal-guard-02",
+          "text": "Death!  Death to all who oppose the Crushbone orcs!",
+          "file": "audio/royal-guard/02.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Royal guard's corpse",
+      "statements": [
+        {
+          "id": "royal-guards-corpse-01",
+          "text": "You shall have all the Crushbone orc legions on your tail for my death!",
+          "file": "audio/royal-guards-corpse/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Emperor Crush",
+      "statements": [
+        {
+          "id": "emperor-crush-01",
+          "text": "Death!  Death to all who oppose the Crushbone orcs!",
+          "file": "audio/emperor-crush/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Emperor Crush's corpse",
+      "statements": [
+        {
+          "id": "emperor-crushs-corpse-01",
+          "text": "You shall have all the Crushbone orc legions on your tail for my death!",
+          "file": "audio/emperor-crushs-corpse/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Bonefire",
+      "statements": [
+        {
+          "id": "bonefire-01",
+          "text": "Death!  Death to all who oppose the Crushbone orcs!",
+          "file": "audio/bonefire/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Bonefire's corpse",
+      "statements": [
+        {
+          "id": "bonefires-corpse-01",
+          "text": "You shall have all the Crushbone orc legions on your tail for my death!",
+          "file": "audio/bonefires-corpse/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Chokehold",
+      "statements": [
+        {
+          "id": "chokehold-01",
+          "text": "Death!  Death to all who oppose the Crushbone orcs!",
+          "file": "audio/chokehold/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Chokehold's corpse",
+      "statements": [
+        {
+          "id": "chokeholds-corpse-01",
+          "text": "You shall have all the Crushbone orc legions on your tail for my death!",
+          "file": "audio/chokeholds-corpse/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Bloodgurgler",
+      "statements": [
+        {
+          "id": "bloodgurgler-01",
+          "text": "Death!  Death to all who oppose the Crushbone orcs!",
+          "file": "audio/bloodgurgler/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Bloodgurgler's corpse",
+      "statements": [
+        {
+          "id": "bloodgurglers-corpse-01",
+          "text": "You shall have all the Crushbone orc legions on your tail for my death!",
+          "file": "audio/bloodgurglers-corpse/01.mp3"
+        }
+      ]
+    },
+    {
+      "name": "Lord Darish's corpse",
+      "statements": [
+        {
+          "id": "lord-darishs-corpse-01",
+          "text": "You shall have all the Crushbone orc legions on your tail for my death!",
+          "file": "audio/lord-darishs-corpse/01.mp3"
+        }
+      ]
+    }
+  ]
+}

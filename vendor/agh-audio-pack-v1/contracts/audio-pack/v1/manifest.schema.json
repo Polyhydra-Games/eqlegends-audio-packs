@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentic-game-harness/contracts/audio-pack/v1/manifest.schema.json",
+  "title": "audio pack manifest v1",
+  "description": "Game-neutral manifest for a pre-generated voice clip pack for one zone. Text and relative file paths only; audio files are stored beside the manifest and are not described here. Unknown keys are refused.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "game_id",
+    "zone_key",
+    "zone_name",
+    "packVersion",
+    "provider",
+    "voiceId",
+    "enemies"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "game_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]{1,32}$",
+      "description": "Game identifier. The format is enforced here. The validator also requires a known id (eqlegends, wow)."
+    },
+    "zone_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9-]{1,64}$",
+      "description": "Same rule as mmo zone.changed zone_key."
+    },
+    "zone_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "packVersion": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+    },
+    "provider": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "voiceId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "enemies": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/speaker"
+      }
+    }
+  },
+  "$defs": {
+    "speaker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "statements"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "statements": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/line"
+          }
+        }
+      }
+    },
+    "line": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "text",
+        "file"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{0,127}$",
+          "description": "Unique within the manifest."
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "file": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Relative to the pack directory. Forward slashes only, no leading slash, no drive letter, no .. segment.",
+          "pattern": "^(?!/)(?![A-Za-z]:)(?!.*\\\\)(?!(?:.*/)?\\.\\.(?:/|$)).+$"
+        }
+      }
+    }
+  }
+}

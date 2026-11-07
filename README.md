@@ -51,6 +51,14 @@ Each pack is published as a GitHub Release with the pack's zip attached (e.g. `c
 
 ## Validation
 
+The validator checks manifests against the AGH audio-pack manifest v1 contract,
+vendored read-only under `vendor/agh-audio-pack-v1/` (see its `SOURCE.md` for the
+pinned source SHA). A manifest that declares `schema_version: 1` is validated as v1
+directly. The legacy EQ manifests in `packs/` have no `schema_version`; the validator
+migrates each one in memory with the vendored `migrate_eq_manifest`, using the pack
+directory name as `zone_key`, then validates the result as v1. The manifest file on
+disk is never rewritten, so the release pipeline reads the manifests unchanged.
+
 Pack manifests and their referenced clips are checked by the credential-free
 validator before a tagged release is zipped. To validate one pack locally:
 
